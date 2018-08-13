@@ -1,0 +1,59 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+}
+<script src="~/Scripts/jquery-1.10.2.min.js"></script>
+<h2>Upload de Arquivos</h2>
+
+<br />
+
+<div id="Arquivos">
+
+    @*Apenas para fins de teste, inclui o .jpg na frente do arquivo, pois só subi .jpg
+        Depois teria que modelar melhor o banco de dados, para armazenar o nome verdadeiro do arquivo e o novo nome,
+        Mas como não é o objetivo deste projeto, não terá importância*@
+    @foreach (var arquivo in (List<Mvc_Upload_Ajax.Models.Arquivo>)ViewData["arquivos"])
+    {
+       <img src="@(arquivo.IdArquivo + Path.GetExtension(arquivo.NomeArquivo))" />
+    }
+
+    <span id="novosArquivos"></span>
+
+</div>
+
+<br /><br />
+
+
+<input type="file" id="imgUpload" name="image"  multiple="multiple"  />&nbsp;
+<button id="btnSubirArquivo">Fazer Upload</button>
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+       
+        $("#btnSubirArquivo").click(function () {
+            alert('Os arquivos serão enviados');
+            var formdata = new FormData(); //Objeto FormData
+            var fileInput = document.getElementById('imgUpload');
+            for (i = 0; i < fileInput.files.length; i++) {
+                formdata.append(fileInput.files[i].name, fileInput.files[i]);
+            }
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/Arquivos/Upload');
+            xhr.send(formdata);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    //alert(xhr.responseText);
+                    var img = $('<img />', {
+                        id: 'image',
+                        src: xhr.responseText.replace('"', '').replace('"', ''),
+                        alt: 'My Alt'
+                    });
+                    img.appendTo($('#novosArquivos'));
+                }
+            }
+            return false;
+        });
+    });
+
+</script>
